@@ -17,9 +17,14 @@ export interface AnimeData {
 }
 
 export interface Filters {
-  type: string[] // Фильтрация аниме по типам
-  genres: {name: string}[] // Фильтрация аниме по жанрам
-  search: string // Поиск по названию
-  airedFrom: string // Сортировка по дате релиза
-  year: number // Числовая фильтрация по году выпуска 
+  type: string[];
+  genres: Genre[];
+  search: string;
+  airedFrom: string;
+  year: number;
+  score: {
+    min: number;
+    max: number;
+  };
+  selectedGenres: number[]; // Add this line
 }
