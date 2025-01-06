@@ -15,7 +15,7 @@
 .filterGroup {
   display: grid;
   margin-left: 2rem;
-  grid-template-columns: auto auto auto; /* three columns for type, genre, and score */
+  grid-template-columns: auto auto auto; 
   gap: 2rem;
   align-items: center;
 }

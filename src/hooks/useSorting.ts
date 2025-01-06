@@ -6,6 +6,7 @@ type SortConfig = {
   order: 'asc' | 'desc';
 };
 
+// Хук для сортировки данных
 export const useSorting = () => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     field: 'aired.from',

@@ -26,5 +26,5 @@ export interface Filters {
     min: number;
     max: number;
   };
-  selectedGenres: number[]; // Add this line
+  selectedGenres: number[];
 }

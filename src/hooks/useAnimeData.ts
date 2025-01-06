@@ -2,13 +2,14 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimeData, Filters } from '../types/animeTypes';
 import { DEFAULT_ORDER_BY, DEFAULT_SORT } from '../constants/animeConstants';
 
+// Хук для получения аниме данных
 export const useAnimeData = (filters: Filters) => {
   const [data, setData] = useState<AnimeData[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  // Intersection Observer for infinite scroll
+  // Для бесконечной прокрутки
   const observer = useRef<IntersectionObserver | null>(null);
   const lastElementRef = useCallback((node: HTMLElement | null) => {
     if (loading) return;
@@ -23,6 +24,7 @@ export const useAnimeData = (filters: Filters) => {
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
 
+  // Получаем данные из API
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
