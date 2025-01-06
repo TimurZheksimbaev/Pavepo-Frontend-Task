@@ -7,5 +7,5 @@ export const availableGenres = [
 ];
 
 export const availableTypes = [
-    'TV', 'Movie', 'OVA', 'TV Special', "ONA", "Music", "CM", "PV"
+    'TV', 'Movie', 'OVA', 'TV Special'
 ]

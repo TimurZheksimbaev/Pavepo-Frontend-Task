@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { debounce } from 'lodash';
-import { Calendar, Search, SortAsc, SortDesc } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { debounce, filter, update } from 'lodash';
+import { Search} from 'lucide-react';
 import styles from './AnimeTable.module.css';
 import {availableTypes, availableGenres, DEFAULT_ORDER_BY, DEFAULT_SORT} from './constants'
 import { AnimeData, Filters, Genre } from '../../types/animeTypes';
@@ -11,6 +11,7 @@ const AnimeTable = () => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [year, setYear] = useState<string>('');
   const [filters, setFilters] = useState<Filters>({
     type: [],
     genres: [],
@@ -18,6 +19,10 @@ const AnimeTable = () => {
     airedFrom: '',
     year: 0
   });
+  const [filteredData, setFilteredData] = useState<AnimeData[]>([]);
+  const [sortField, setSortField] = useState<'aired.from' | ''>('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
 
   const fetchGenres = async () => {
     try {
@@ -32,8 +37,9 @@ const AnimeTable = () => {
   }
   useEffect(() => {
     fetchGenres()
-
   }, [])
+
+  
 
   const fetchData = useCallback(async () => {
     try {
@@ -58,7 +64,7 @@ const AnimeTable = () => {
 
   useEffect(() => {
     fetchData();
-  }, [data]);
+  }, [fetchData]);
 
   const handleTypeFilter = (type: string) => {
     setFilters(prev => ({
@@ -69,16 +75,50 @@ const AnimeTable = () => {
     }));
   };
 
+  const handleYearChange = debounce((value) => {
+    setYear(value);
+}, 300);
+
   const handleSearch = debounce((value: string) => {
     setData([]);
     setPage(1);
     setFilters(prev => ({ ...prev, search: value }));
   }, 500);
 
-  const filteredData = data.filter(item => {
-    const matchesType = filters.type.length === 0 || filters.type.includes(item.type);
-    return matchesType
-  })
+  const handleSortByDate = () => {
+    const sortedData = [...data].sort((a, b) => {
+      const dateA = new Date(a.aired.from).getTime();
+      const dateB = new Date(b.aired.from).getTime();
+      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+    });
+    setData(sortedData);
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+  };
+
+  useEffect(() => {
+    let updatedData = [...data];
+
+    if (filters.type.length > 0) {
+      updatedData = updatedData.filter((anime) => filters.type.includes(anime.type));
+    }
+
+
+    if (sortField) {
+      updatedData.sort((a, b) => {  
+        const aValue = a.aired.from
+        const bValue = b.aired.from
+
+        if (sortOrder === 'asc') {
+          return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        } else {
+          return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+        }
+      });
+    }
+
+    setFilteredData(updatedData);
+  }, [data, filters, sortField, sortOrder]);
+
 
 
   return (
@@ -98,22 +138,17 @@ const AnimeTable = () => {
               </button>
             ))}
           </div>
-        </div>
 
-        {/* <div className={styles.filterGroup}>
-          <div className={styles.genresFilter}>
-            {genres.map(genre => (
-              <button
-                key={genre.mal_id}
-                className={`${styles.genresButton} ${
-                  filters.type.includes(genre.name) ? styles.active : ''
-                }`}
-              >
-                {genre.name}
-              </button>
-            ))}
+          <div className={styles.scoreFilter}>
+          <input
+            type="number"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            placeholder="Enter year"
+          />
           </div>
-        </div> */}
+
+        </div>
 
         <div className={styles.searchContainer}>
           <Search className={styles.searchIcon} size={16} />
@@ -125,6 +160,7 @@ const AnimeTable = () => {
           />
         </div>
       </div>
+
 
 
       <table className={styles.table}>
@@ -147,7 +183,9 @@ const AnimeTable = () => {
               </div>
             </th>
 
-            <th>Release Date</th>
+            <th onClick={() => handleSortByDate()}>
+              Release Date {(sortOrder === 'desc' ? '▲' : '▼')}
+            </th>
             <th>
               <div className={styles.tableHeader}>
                 Episodes
@@ -159,7 +197,7 @@ const AnimeTable = () => {
               </div>
             </th>
           </tr>
-        </thead>
+        </thead>  
         <tbody className={styles.tableBody}>
           {filteredData.map(anime => (
             <tr key={anime.mal_id}>
