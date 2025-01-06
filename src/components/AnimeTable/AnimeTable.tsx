@@ -9,7 +9,7 @@ import { Genre} from '../../types/animeTypes';
 
 const AnimeTable = () => {
     const { filters, setFilters, handleTypeFilter, handleGenreFilter, handleSearch, handleScoreFilter } = useFilters();
-    const { data, loading, lastElementRef, setData } = useAnimeData(filters);
+    const { data, loading, lastElementRef} = useAnimeData(filters);
     const { sortConfig, handleSort, sortData } = useSorting();
 
     const [genres, setGenres] = useState<Genre[]>([]);
@@ -62,7 +62,6 @@ const AnimeTable = () => {
   
       return true;
     });
-
 
 
     return (
@@ -205,7 +204,7 @@ const AnimeTable = () => {
                 key={anime.mal_id}
                 ref={index === data.length - 5 ? lastElementRef : null}
               >
-                <td>{anime.title}</td>
+                <td className={styles.animeTitle}>{anime.title}</td>
                 <td>{anime.type}</td>
                 <td>{anime.genres.map(g => g.name).join(', ')}</td>
                 <td>{new Date(anime.aired.from).toLocaleDateString()}</td>

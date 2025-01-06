@@ -242,6 +242,10 @@
   color: #3c232d;
 }
 
+.animeTitle {
+  background-color: #e7d2d2;
+}
+
 /* Loading */
 .loadingSpinner {
   display: flex;
